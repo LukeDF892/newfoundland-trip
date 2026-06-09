@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const TABS = [
   { id: "days", label: "📅 Itinerary" },
   { id: "food", label: "🍽️ Food & Drink" },
   { id: "trail", label: "🎒 Trail Essentials" },
+  { id: "map", label: "🗺️ Map & Route" },
+  { id: "packing", label: "🧳 Packing Lists" },
 ];
 
 const days = [
@@ -119,7 +121,7 @@ const days = [
       { time: "~7:00am", icon: "🌅", title: "Dock in North Sydney, NS", details: "Off the ferry. Grab breakfast in North Sydney or Sydney before hitting the highway. Fresh tattoos if you got them: unwrap, clean gently, let them breathe." },
       { time: "Morning", icon: "🚗", title: "Drive to Saint John, NB (~5.5 hrs)", details: "Trans-Canada through Cape Breton and mainland Nova Scotia. Coffee stop in Amherst or Moncton." },
       { time: "~1:00pm", icon: "🏁", title: "Return Avis Car — Water Street, Saint John", timing: true, details: "Drop-off at Saint John — Water Street (Ref: 14902711CA5). See the timing alert above about getting to Oromocto/Fredericton from here." },
-      { time: "Afternoon", icon: "🚗", title: "Travel to Oromocto / Fredericton Area (~1 hr)", details: "Oromocto is about 100km from Saint John — an easy one-hour drive. Get settled before tomorrow's wedding. This is also where you'll be staying overnight." },
+      { time: "Afternoon", icon: "🚗", title: "Travel to Oromocto / Fredericton Area (~1 hr)", details: "Oromocto is about 100km from Saint John — an easy one-hour drive. Get settled before tomorrow's wedding." },
       { time: "Evening", icon: "🛏️", title: "Settle in Near Fredericton", details: "Rest up after the long ferry and drive day. The wedding tomorrow doesn't start until 5pm so there's no rush in the morning." },
     ],
   },
@@ -274,6 +276,366 @@ const highlights = [
   { icon: "🛥️", label: "Western Brook Fjord ✓", sub: "Sep 3 · 12:30pm Booked" },
   { icon: "🎊", label: "Julia & Andrew's Wedding", sub: "Sep 5 · Oromocto, NB" },
 ];
+
+// ── MAP DATA ──────────────────────────────────────────────────────────────────
+
+const mapRoutePoints = [
+  { name: "St. John's", coords: [47.56, -52.71], day: "Aug 28–29", emoji: "🏙️", color: "#1B4332", note: "JAG Hotel · Signal Hill · George Street · Screech-In" },
+  { name: "Bay Bulls", coords: [47.32, -52.81], day: "Aug 29–30", emoji: "🌊", color: "#1B4332", note: "Oceanfront Apartment · Cobbler's Path East Coast Trail" },
+  { name: "Cape Spear", coords: [47.525, -52.623], day: "Aug 30 — 6:20am", emoji: "🌅", color: "#C07000", note: "Sunrise · Easternmost point of North America" },
+  { name: "Elliston", coords: [48.64, -53.10], day: "Aug 30 — 10:30am", emoji: "🐦", color: "#40916C", note: "Best land-based puffin viewing in North America" },
+  { name: "Gander", coords: [48.96, -54.61], day: "Aug 30 — Lunch", emoji: "🛒", color: "#777", note: "Lunch stop · Stock up wine & cheese for OME night" },
+  { name: "Twillingate", coords: [49.65, -54.78], day: "Aug 30–31", emoji: "🧊", color: "#40916C", note: "Twillingate Airbnb · Long Point Lighthouse" },
+  { name: "Springdale (Ochre Hill)", coords: [49.50, -56.06], day: "Aug 31 — Morning", emoji: "⛰️", color: "#52796F", note: "Hidden gem — panoramic views over the Bay of Islands" },
+  { name: "Burlington ('Ome Sweet 'Ome)", coords: [49.41, -56.53], day: "Aug 31–Sep 1", emoji: "🏕️", color: "#52796F", note: "Glamping · Wine & Cheese Night ✨" },
+  { name: "York Harbour", coords: [49.08, -58.23], day: "Sep 1–3", emoji: "🔥", color: "#354F52", note: "Salt Spray Landing · Private Barrel Sauna (2 nights)" },
+  { name: "Gros Morne NP", coords: [49.51, -57.87], day: "Sep 2", emoji: "⛰️", color: "#1B4332", note: "Tablelands 7:30am + Green Gardens Trail · Full hike day" },
+  { name: "Western Brook Pond", coords: [49.73, -57.89], day: "Sep 3 — 12:30pm", emoji: "🛥️", color: "#2C3E50", note: "Boat Tour ✓ Booked · Landlocked fjord · 600m walls" },
+  { name: "Corner Brook", coords: [48.95, -57.94], day: "Sep 3 — Afternoon", emoji: "🖋️", color: "#2C3E50", note: "Optional tattoo stop · Vic's Fish & Chips" },
+  { name: "Port aux Basques", coords: [47.58, -59.14], day: "Sep 3 — 11:45pm", emoji: "⛴️", color: "#2C3E50", note: "Ferry departs overnight → North Sydney NS · Booking #5033496" },
+  { name: "North Sydney, NS", coords: [46.21, -60.25], day: "Sep 4 — ~7:00am", emoji: "🌅", color: "#4A4E69", note: "Ferry arrives · Drive west through Nova Scotia → New Brunswick" },
+  { name: "Saint John, NB", coords: [45.27, -66.07], day: "Sep 4 — ~1:00pm", emoji: "🚗", color: "#4A4E69", note: "Avis car drop-off · Water Street (Ref: 14902711CA5)" },
+  { name: "Oromocto / Fredericton, NB", coords: [45.85, -66.48], day: "Sep 4–6", emoji: "🎊", color: "#7B5EA7", note: "Julia & Andrew's Wedding · Sep 5 at 5pm · Douglas Hazen Centre" },
+];
+
+// ── PACKING DATA ──────────────────────────────────────────────────────────────
+
+const packingData = {
+  luke: [
+    {
+      bag: "🛒 To Buy Before Trip",
+      accent: "#C0392B",
+      sections: [
+        {
+          title: "📷 Camera Gear",
+          items: [
+            { id: "l-buy-cam1", item: "Camera body", note: "Compact mirrorless recommended — Sony ZV-E10 II or Fujifilm X-T50 are excellent travel options" },
+            { id: "l-buy-cam2", item: "Spare camera batteries (×2)" },
+            { id: "l-buy-cam3", item: "Memory cards — 64GB+ (×2)", note: "Bring extras — 10 days of hiking & scenery fills cards fast" },
+            { id: "l-buy-cam4", item: "GorillaPod or mini tripod", note: "Essential for couple shots at Cape Spear, sea stacks, and the fjord" },
+            { id: "l-buy-cam5", item: "Camera strap or Peak Design clip" },
+          ],
+        },
+        {
+          title: "Trail Supplies",
+          items: [
+            { id: "l-buy-t1", item: "Electrolyte packets — Nuun or Liquid IV (×20+)", note: "For Tablelands, Green Gardens, and Western Brook hike days" },
+            { id: "l-buy-t2", item: "Made Good granola bars (×2 boxes)", note: "Certified nut-free — buy before leaving, rural NL may not stock these" },
+            { id: "l-buy-t3", item: "DEET bug spray (×2)", note: "Blackflies and mosquitoes in Burlington and central NL" },
+            { id: "l-buy-t4", item: "Sunscreen SPF 50+ (×2)" },
+          ],
+        },
+        {
+          title: "Celebratory Drinks",
+          items: [
+            { id: "l-buy-w1", item: "Sparkling wine splits 187ml (×4–6)", note: "Cape Spear, Tablelands, Western Brook Pond, spare — or buy in St. John's" },
+            { id: "l-buy-w2", item: "Collapsible wine glasses (×2)", note: "MEC or Amazon — makes any summit feel like a proper celebration" },
+          ],
+        },
+      ],
+    },
+    {
+      bag: "🧳 Carry-On",
+      accent: "#2980B9",
+      sections: [
+        {
+          title: "Documents & Money",
+          items: [
+            { id: "l-co-d1", item: "Government-issued photo ID or passport" },
+            { id: "l-co-d2", item: "Boarding passes — digital + printed backup" },
+            { id: "l-co-d3", item: "Car rental confirmation — Avis Ref: 14902711CA5" },
+            { id: "l-co-d4", item: "Ferry booking — Marine Atlantic #5033496" },
+            { id: "l-co-d5", item: "All accommodation confirmations" },
+            { id: "l-co-d6", item: "Wallet + credit/debit card" },
+            { id: "l-co-d7", item: "Cash (Canadian)", note: "Some rural NL spots are cash-only: Vic's Fish & Chips, ferry golf cart ($10)" },
+          ],
+        },
+        {
+          title: "Ferry & Flight Comfort",
+          items: [
+            { id: "l-co-c1", item: "Eye mask", note: "The overnight ferry keeps TVs on all night — essential" },
+            { id: "l-co-c2", item: "Small travel blanket or packable layer" },
+            { id: "l-co-c3", item: "Ear plugs or noise-cancelling headphones" },
+            { id: "l-co-c4", item: "Neck pillow (optional)" },
+          ],
+        },
+        {
+          title: "Essentials",
+          items: [
+            { id: "l-co-e1", item: "Change of clothes (1 full outfit)", note: "In case checked luggage is delayed on the 3:30am departure" },
+            { id: "l-co-e2", item: "Travel-size toiletries (<100ml each)" },
+            { id: "l-co-e3", item: "Nut-free snacks for flights" },
+            { id: "l-co-e4", item: "Empty reusable water bottle" },
+            { id: "l-co-e5", item: "Book or e-reader" },
+            { id: "l-co-e6", item: "Sunglasses" },
+            { id: "l-co-e7", item: "Phone charger + power bank" },
+          ],
+        },
+      ],
+    },
+    {
+      bag: "🎒 Backpack (Day Hiking)",
+      accent: "#27AE60",
+      sections: [
+        {
+          title: "Hiking Gear",
+          items: [
+            { id: "l-bp-h1", item: "2× water bottles (750ml) or 2L hydration bladder" },
+            { id: "l-bp-h2", item: "First aid kit", note: "Blister pads (Compeed), ibuprofen, bandages, antiseptic wipes" },
+            { id: "l-bp-h3", item: "Headlamp + spare batteries", note: "Cape Spear 6am start, overnight ferry navigation" },
+            { id: "l-bp-h4", item: "Offline maps downloaded (Maps.me or AllTrails)", note: "Cell coverage is spotty in Gros Morne and Twillingate" },
+            { id: "l-bp-h5", item: "Trekking poles (optional)", note: "North Head Trail stairs and Green Gardens descent" },
+            { id: "l-bp-h6", item: "Small insulated cooler pouch", note: "For keeping summit wine splits cold" },
+          ],
+        },
+        {
+          title: "Camera & Tech",
+          items: [
+            { id: "l-bp-cam1", item: "Camera + lenses in protective case" },
+            { id: "l-bp-cam2", item: "Spare camera batteries + charger" },
+            { id: "l-bp-cam3", item: "Memory cards" },
+            { id: "l-bp-cam4", item: "GorillaPod / tripod" },
+            { id: "l-bp-cam5", item: "Power bank (charged)" },
+          ],
+        },
+      ],
+    },
+    {
+      bag: "📦 Large Suitcase",
+      accent: "#8E44AD",
+      sections: [
+        {
+          title: "Clothing — Everyday",
+          items: [
+            { id: "l-ls-c1", item: "Casual t-shirts / long-sleeves", qty: "×6", note: "Mix of everyday wear for city days and nicer dinners" },
+            { id: "l-ls-c2", item: "Moisture-wicking hiking shirts", qty: "×3" },
+            { id: "l-ls-c3", item: "Casual pants / jeans", qty: "×2" },
+            { id: "l-ls-c4", item: "Hiking pants", qty: "×1" },
+            { id: "l-ls-c5", item: "Underwear", qty: "×10" },
+            { id: "l-ls-c6", item: "Hiking socks — merino wool", qty: "×5", note: "Prevent blisters on longer trails" },
+            { id: "l-ls-c7", item: "Casual socks", qty: "×5" },
+            { id: "l-ls-c8", item: "Sleep shorts / pajamas", qty: "×2 sets" },
+            { id: "l-ls-c9", item: "Swimsuit / trunks", qty: "×1", note: "Barrel sauna at Salt Spray Landing (Sep 1–3)" },
+          ],
+        },
+        {
+          title: "Clothing — Layers",
+          items: [
+            { id: "l-ls-l1", item: "Waterproof rain jacket", note: "Non-negotiable — NL weather changes in 20 minutes" },
+            { id: "l-ls-l2", item: "Fleece or heavy sweater (mid-layer)" },
+            { id: "l-ls-l3", item: "Thermal base layer top + bottom", qty: "×1 set", note: "For the 6am Cape Spear sunrise on Aug 30" },
+          ],
+        },
+        {
+          title: "Clothing — Wedding (Sep 5, Cocktail Attire)",
+          items: [
+            { id: "l-ls-w1", item: "Dress shirt", qty: "×1" },
+            { id: "l-ls-w2", item: "Sport jacket or blazer", qty: "×1" },
+            { id: "l-ls-w3", item: "Dress pants or chinos", qty: "×1" },
+          ],
+        },
+        {
+          title: "Footwear",
+          items: [
+            { id: "l-ls-f1", item: "Waterproof hiking boots", qty: "×1 pair", note: "Wear on the plane to save suitcase space" },
+            { id: "l-ls-f2", item: "Dress shoes", qty: "×1 pair", note: "Wedding Sep 5" },
+            { id: "l-ls-f3", item: "Casual everyday shoes / sneakers", qty: "×1 pair" },
+          ],
+        },
+        {
+          title: "Toiletries",
+          items: [
+            { id: "l-ls-t1", item: "Shampoo + conditioner" },
+            { id: "l-ls-t2", item: "Body wash" },
+            { id: "l-ls-t3", item: "Deodorant" },
+            { id: "l-ls-t4", item: "Toothbrush + toothpaste" },
+            { id: "l-ls-t5", item: "Razor + shaving cream" },
+            { id: "l-ls-t6", item: "Moisturizer / SPF face lotion" },
+          ],
+        },
+        {
+          title: "Other",
+          items: [
+            { id: "l-ls-o1", item: "Medications (daily + as-needed)" },
+            { id: "l-ls-o2", item: "Packable tote bag", note: "For wine runs, grocery stops, beach days" },
+          ],
+        },
+      ],
+    },
+  ],
+  alexa: [
+    {
+      bag: "🛒 To Buy Before Trip",
+      accent: "#C0392B",
+      sections: [
+        {
+          title: "📷 Camera (Shared with Luke)",
+          items: [
+            { id: "a-buy-cam1", item: "Camera body (shared)", note: "Sony ZV-E10 II or Fujifilm X-T50 — compact and excellent for hiking and travel" },
+            { id: "a-buy-cam2", item: "GorillaPod / mini tripod (shared)", note: "Key for couple shots at Cape Spear, Green Gardens, Western Brook Pond" },
+          ],
+        },
+        {
+          title: "Trail & Health Supplies",
+          items: [
+            { id: "a-buy-t1", item: "Electrolyte packets — Nuun or Liquid IV (×20+)" },
+            { id: "a-buy-t2", item: "Nut-free snacks (Made Good bars, seed mixes)", note: "Stock up before leaving — rural NL has limited specialty stock" },
+            { id: "a-buy-t3", item: "DEET bug spray (×2)" },
+            { id: "a-buy-t4", item: "Sunscreen SPF 50+ (×2)" },
+            { id: "a-buy-t5", item: "Antihistamines — Reactine + Benadryl (backup stock)" },
+          ],
+        },
+      ],
+    },
+    {
+      bag: "🧳 Carry-On",
+      accent: "#2980B9",
+      sections: [
+        {
+          title: "⚠️ Allergy Essentials — Always in Carry-On",
+          items: [
+            { id: "a-co-a1", item: "EpiPen (×2)", note: "Always in carry-on, NEVER in checked luggage — keep one accessible during the whole trip" },
+            { id: "a-co-a2", item: "Antihistamines — Benadryl (fast-acting) + Reactine (daily)" },
+            { id: "a-co-a3", item: "Written allergy action plan", note: "Helpful at rural restaurants where staff may be less familiar with nut allergies" },
+          ],
+        },
+        {
+          title: "Documents & Money",
+          items: [
+            { id: "a-co-d1", item: "Government-issued photo ID or passport" },
+            { id: "a-co-d2", item: "Boarding passes — Ref: CNM5DB (return AC 1965 Sep 6, Thunder Bay)" },
+            { id: "a-co-d3", item: "Wallet + credit/debit card" },
+            { id: "a-co-d4", item: "Cash (Canadian)", note: "Cash-only spots: Vic's Fish & Chips, ferry golf cart" },
+          ],
+        },
+        {
+          title: "Ferry & Flight Comfort",
+          items: [
+            { id: "a-co-c1", item: "Eye mask", note: "The overnight ferry (Sep 3→4) keeps TVs on all night" },
+            { id: "a-co-c2", item: "Small travel blanket or packable layer" },
+            { id: "a-co-c3", item: "Ear plugs or noise-cancelling headphones" },
+          ],
+        },
+        {
+          title: "Essentials",
+          items: [
+            { id: "a-co-e1", item: "Change of clothes (1 full outfit)", note: "In case luggage is delayed on the early morning Aug 28 departure" },
+            { id: "a-co-e2", item: "Travel-size toiletries (<100ml)" },
+            { id: "a-co-e3", item: "Nut-free snacks for flights" },
+            { id: "a-co-e4", item: "Empty reusable water bottle" },
+            { id: "a-co-e5", item: "Book or e-reader" },
+            { id: "a-co-e6", item: "Sunglasses" },
+            { id: "a-co-e7", item: "Phone charger + power bank" },
+            { id: "a-co-e8", item: "Lip balm + hand cream" },
+          ],
+        },
+      ],
+    },
+    {
+      bag: "🎒 Backpack (Day Hiking)",
+      accent: "#27AE60",
+      sections: [
+        {
+          title: "Hiking Gear",
+          items: [
+            { id: "a-bp-h1", item: "2× water bottles (750ml) or 2L hydration bladder" },
+            { id: "a-bp-h2", item: "First aid kit", note: "Blister pads (Compeed), ibuprofen, bandages, antiseptic wipes" },
+            { id: "a-bp-h3", item: "Headlamp + spare batteries" },
+            { id: "a-bp-h4", item: "Offline maps downloaded (AllTrails)", note: "Cell coverage unreliable in Gros Morne and Twillingate" },
+            { id: "a-bp-h5", item: "Feminine hygiene products (trail supply)" },
+          ],
+        },
+        {
+          title: "Tech",
+          items: [
+            { id: "a-bp-t1", item: "Phone + charger + power bank" },
+            { id: "a-bp-t2", item: "AirPods / earbuds" },
+          ],
+        },
+      ],
+    },
+    {
+      bag: "📦 Large Suitcase",
+      accent: "#8E44AD",
+      sections: [
+        {
+          title: "Clothing — Everyday",
+          items: [
+            { id: "a-ls-c1", item: "Casual tops / blouses", qty: "×6" },
+            { id: "a-ls-c2", item: "Moisture-wicking hiking shirts", qty: "×3" },
+            { id: "a-ls-c3", item: "Casual dresses or sundresses", qty: "×2–3", note: "Great for nicer dinners and warmer city days" },
+            { id: "a-ls-c4", item: "Jeans or casual pants", qty: "×2–3" },
+            { id: "a-ls-c5", item: "Hiking pants or leggings", qty: "×1–2" },
+            { id: "a-ls-c6", item: "Underwear", qty: "×10" },
+            { id: "a-ls-c7", item: "Sports bras", qty: "×3" },
+            { id: "a-ls-c8", item: "Regular bras", qty: "×3" },
+            { id: "a-ls-c9", item: "Hiking socks — merino wool", qty: "×5" },
+            { id: "a-ls-c10", item: "Casual socks", qty: "×5" },
+            { id: "a-ls-c11", item: "Sleep clothes / pajamas", qty: "×2 sets" },
+            { id: "a-ls-c12", item: "Swimsuit", qty: "×1", note: "Barrel sauna at Salt Spray Landing — Sep 1–3" },
+          ],
+        },
+        {
+          title: "Clothing — Layers",
+          items: [
+            { id: "a-ls-l1", item: "Waterproof rain jacket", note: "Non-negotiable — NL weather changes fast, especially coastal" },
+            { id: "a-ls-l2", item: "Cozy sweater or cardigan" },
+            { id: "a-ls-l3", item: "Fleece mid-layer" },
+            { id: "a-ls-l4", item: "Thermal base layer top + bottom", qty: "×1 set", note: "For 6am Cape Spear sunrise — cliff-top Atlantic wind in late August" },
+          ],
+        },
+        {
+          title: "Clothing — Wedding (Sep 5, Cocktail Attire)",
+          items: [
+            { id: "a-ls-w1", item: "Cocktail dress 🎊", note: "Douglas Hazen Centre, Oromocto NB — outdoor ceremony, semi-formal reception" },
+            { id: "a-ls-w2", item: "Wrap or light jacket", note: "Evening in NB can be cool in early September" },
+            { id: "a-ls-w3", item: "Wedding jewelry & accessories" },
+            { id: "a-ls-w4", item: "Nail care touch-up kit" },
+          ],
+        },
+        {
+          title: "Footwear",
+          items: [
+            { id: "a-ls-f1", item: "Waterproof hiking boots or trail runners", qty: "×1 pair", note: "Wear on the plane — Green Gardens has wet, muddy coastal sections" },
+            { id: "a-ls-f2", item: "Heels or dressy sandals", qty: "×1 pair", note: "Wedding Sep 5 — note outdoor ceremony area" },
+            { id: "a-ls-f3", item: "Casual everyday shoes", qty: "×1 pair" },
+          ],
+        },
+        {
+          title: "Hair & Beauty",
+          items: [
+            { id: "a-ls-b1", item: "Hair straightener or curling iron" },
+            { id: "a-ls-b2", item: "Heat protectant spray" },
+            { id: "a-ls-b3", item: "Dry shampoo", note: "Lifesaver on early-morning hike days" },
+            { id: "a-ls-b4", item: "Hair ties, bobby pins, clips" },
+            { id: "a-ls-b5", item: "Compact makeup bag", note: "Light everyday + full for wedding night" },
+          ],
+        },
+        {
+          title: "Toiletries",
+          items: [
+            { id: "a-ls-t1", item: "Shampoo + conditioner" },
+            { id: "a-ls-t2", item: "Body wash" },
+            { id: "a-ls-t3", item: "Deodorant" },
+            { id: "a-ls-t4", item: "Toothbrush + toothpaste" },
+            { id: "a-ls-t5", item: "Razor" },
+            { id: "a-ls-t6", item: "Skincare routine (cleanser, moisturizer, SPF)" },
+            { id: "a-ls-t7", item: "Feminine hygiene products (main supply)" },
+          ],
+        },
+        {
+          title: "Other",
+          items: [
+            { id: "a-ls-o1", item: "Medications (daily + as-needed)" },
+            { id: "a-ls-o2", item: "Packable tote bag" },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+// ── COMPONENTS ────────────────────────────────────────────────────────────────
 
 function DaysTab() {
   const [activeDay, setActiveDay] = useState(0);
@@ -476,6 +838,165 @@ function TrailTab() {
   );
 }
 
+function MapTab() {
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+
+  useEffect(() => {
+    if (!document.getElementById("leaflet-css")) {
+      const link = document.createElement("link");
+      link.id = "leaflet-css";
+      link.rel = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(link);
+    }
+
+    const initMap = () => {
+      if (mapInstanceRef.current || !mapRef.current) return;
+      const L = window.L;
+      const map = L.map(mapRef.current).fitBounds([[45.0, -66.8], [49.9, -52.5]]);
+      mapInstanceRef.current = map;
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+        maxZoom: 14,
+      }).addTo(map);
+
+      L.polyline(mapRoutePoints.map(p => p.coords), {
+        color: "#2D6A4F", weight: 2.5, dashArray: "6, 5", opacity: 0.7,
+      }).addTo(map);
+
+      mapRoutePoints.forEach((point) => {
+        const icon = L.divIcon({
+          className: "",
+          html: `<div style="width:30px;height:30px;border-radius:50%;background:${point.color};border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer;">${point.emoji}</div>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15],
+        });
+        L.marker(point.coords, { icon }).addTo(map).bindPopup(
+          `<div style="font-family:Georgia,serif;min-width:180px;"><div style="font-weight:bold;font-size:14px;margin-bottom:4px;">${point.emoji} ${point.name}</div><div style="font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">${point.day}</div><div style="font-size:12px;color:#333;line-height:1.5;">${point.note}</div></div>`,
+          { maxWidth: 240 }
+        );
+      });
+    };
+
+    if (window.L) {
+      initMap();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      script.onload = initMap;
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      if (mapInstanceRef.current) { mapInstanceRef.current.remove(); mapInstanceRef.current = null; }
+    };
+  }, []);
+
+  return (
+    <div style={{ maxWidth: 900, margin: "0 auto", padding: "24px 16px 48px" }}>
+      <p style={{ fontSize: 13, color: "#666", fontStyle: "italic", margin: "0 0 16px", lineHeight: 1.6 }}>
+        Click any marker for details about that stop. The dashed line traces the full route from St. John's to Fredericton.
+      </p>
+      <div ref={mapRef} style={{ height: 480, borderRadius: 12, border: "1px solid #e8e0d5", overflow: "hidden", background: "#e8e4df", marginBottom: 24 }} />
+      <div style={{ background: "#fff", border: "1px solid #e8e0d5", borderRadius: 12, padding: "20px" }}>
+        <div style={{ fontSize: 11, letterSpacing: 3, color: "#2D6A4F", textTransform: "uppercase", marginBottom: 14, fontWeight: "bold" }}>
+          Route — {mapRoutePoints.length} Stops
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 8 }}>
+          {mapRoutePoints.map((point, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 10px", borderRadius: 8, background: "#F9F6F1", border: "1px solid #ede8e0" }}>
+              <div style={{ width: 26, height: 26, borderRadius: "50%", background: point.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, flexShrink: 0 }}>
+                {point.emoji}
+              </div>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: "bold", lineHeight: 1.3 }}>{point.name}</div>
+                <div style={{ fontSize: 10, color: "#888", marginTop: 2 }}>{point.day}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PackingTab() {
+  const [person, setPerson] = useState("luke");
+  const [checked, setChecked] = useState(() => {
+    try { const s = localStorage.getItem("nfld-packing-checked"); return s ? JSON.parse(s) : {}; }
+    catch { return {}; }
+  });
+
+  const toggle = (id) => {
+    const next = { ...checked, [id]: !checked[id] };
+    setChecked(next);
+    try { localStorage.setItem("nfld-packing-checked", JSON.stringify(next)); } catch {}
+  };
+
+  const data = packingData[person];
+  const allIds = data.flatMap(bag => bag.sections.flatMap(sec => sec.items.map(it => it.id)));
+  const checkedCount = allIds.filter(id => checked[id]).length;
+
+  const clearPerson = () => {
+    const next = { ...checked };
+    allIds.forEach(id => delete next[id]);
+    setChecked(next);
+    try { localStorage.setItem("nfld-packing-checked", JSON.stringify(next)); } catch {}
+  };
+
+  return (
+    <div style={{ maxWidth: 720, margin: "0 auto", padding: "24px 16px 48px" }}>
+      <div style={{ display: "flex", gap: 10, marginBottom: 20, alignItems: "center", flexWrap: "wrap" }}>
+        {[{ id: "luke", label: "🧔 Luke" }, { id: "alexa", label: "👩 Alexa" }].map(p => (
+          <button key={p.id} onClick={() => setPerson(p.id)} style={{ padding: "10px 22px", borderRadius: 24, border: `2px solid ${person === p.id ? "#2D6A4F" : "#d0c9be"}`, background: person === p.id ? "#2D6A4F" : "#fff", color: person === p.id ? "#fff" : "#444", fontSize: 14, fontWeight: person === p.id ? "bold" : "normal", cursor: "pointer", fontFamily: "Georgia, serif", transition: "all 0.15s" }}>
+            {p.label}
+          </button>
+        ))}
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ fontSize: 12, color: "#666" }}>{checkedCount} / {allIds.length} packed</div>
+          {checkedCount > 0 && (
+            <button onClick={clearPerson} style={{ fontSize: 11, color: "#999", background: "none", border: "1px solid #ddd", borderRadius: 12, padding: "4px 10px", cursor: "pointer", fontFamily: "Georgia, serif" }}>Clear</button>
+          )}
+        </div>
+      </div>
+      <div style={{ height: 4, background: "#e8e0d5", borderRadius: 2, marginBottom: 28, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${allIds.length ? (checkedCount / allIds.length) * 100 : 0}%`, background: "#2D6A4F", borderRadius: 2, transition: "width 0.3s ease" }} />
+      </div>
+      {data.map((bag, bi) => (
+        <div key={bi} style={{ marginBottom: 32 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, paddingBottom: 10, borderBottom: `2px solid ${bag.accent}33` }}>
+            <div style={{ width: 4, height: 28, background: bag.accent, borderRadius: 2, flexShrink: 0 }} />
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: "bold", color: bag.accent }}>{bag.bag}</h3>
+          </div>
+          {bag.sections.map((sec, si) => (
+            <div key={si} style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 11, letterSpacing: 2, color: "#888", textTransform: "uppercase", marginBottom: 8, paddingLeft: 4 }}>{sec.title}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {sec.items.map(it => (
+                  <label key={it.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "11px 14px", background: checked[it.id] ? "#F0FAF4" : "#fff", border: `1px solid ${checked[it.id] ? "#52B788" : "#e8e0d5"}`, borderRadius: 9, cursor: "pointer", transition: "all 0.15s" }}>
+                    <input type="checkbox" checked={!!checked[it.id]} onChange={() => toggle(it.id)} style={{ marginTop: 2, accentColor: "#2D6A4F", width: 15, height: 15, flexShrink: 0, cursor: "pointer" }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: "500", color: checked[it.id] ? "#999" : "#1a1a1a", textDecoration: checked[it.id] ? "line-through" : "none", lineHeight: 1.4 }}>
+                        {it.item}
+                        {it.qty && <span style={{ fontSize: 11, color: "#bbb", marginLeft: 6 }}>{it.qty}</span>}
+                      </div>
+                      {it.note && <div style={{ fontSize: 11, color: "#888", marginTop: 3, lineHeight: 1.5, fontStyle: "italic" }}>{it.note}</div>}
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── MAIN APP ──────────────────────────────────────────────────────────────────
+
 export default function Itinerary() {
   const [activeTab, setActiveTab] = useState("days");
   const [showHighlights, setShowHighlights] = useState(false);
@@ -497,7 +1018,6 @@ export default function Itinerary() {
           </button>
         </div>
       </div>
-
       {showHighlights && (
         <div style={{ background: "#fff", borderBottom: "1px solid #e0d9ce", padding: "20px 16px" }}>
           <div style={{ maxWidth: 680, margin: "0 auto" }}>
@@ -516,18 +1036,18 @@ export default function Itinerary() {
           </div>
         </div>
       )}
-
       <div style={{ background: "#fff", borderBottom: "2px solid #e0d9ce", display: "flex", justifyContent: "center", overflowX: "auto" }}>
         {TABS.map(t => (
-          <button key={t.id} onClick={() => setActiveTab(t.id)} style={{ padding: "14px 24px", border: "none", borderBottom: activeTab === t.id ? "3px solid #2D6A4F" : "3px solid transparent", background: "transparent", cursor: "pointer", fontSize: 14, color: activeTab === t.id ? "#1B4332" : "#666", fontWeight: activeTab === t.id ? "bold" : "normal", fontFamily: "Georgia, serif", transition: "all 0.2s", whiteSpace: "nowrap" }}>
+          <button key={t.id} onClick={() => setActiveTab(t.id)} style={{ padding: "14px 20px", border: "none", borderBottom: activeTab === t.id ? "3px solid #2D6A4F" : "3px solid transparent", background: "transparent", cursor: "pointer", fontSize: 13, color: activeTab === t.id ? "#1B4332" : "#666", fontWeight: activeTab === t.id ? "bold" : "normal", fontFamily: "Georgia, serif", transition: "all 0.2s", whiteSpace: "nowrap" }}>
             {t.label}
           </button>
         ))}
       </div>
-
       {activeTab === "days" && <DaysTab />}
       {activeTab === "food" && <FoodTab />}
       {activeTab === "trail" && <TrailTab />}
+      {activeTab === "map" && <MapTab />}
+      {activeTab === "packing" && <PackingTab />}
     </div>
   );
 }
