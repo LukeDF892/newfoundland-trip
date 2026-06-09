@@ -298,6 +298,47 @@ const mapRoutePoints = [
   { name: "Oromocto / Fredericton, NB", coords: [45.85, -66.48], day: "Sep 4–6", emoji: "🎊", color: "#7B5EA7", note: "Julia & Andrew's Wedding · Sep 5 at 5pm · Douglas Hazen Centre" },
 ];
 
+const optionalStops = [
+  // Avalon Peninsula
+  { name: "Witless Bay Eco Reserve", coords: [47.27, -52.84], emoji: "🐋", color: "#52B788", note: "Boat tours for whales & puffins launch from Bay Bulls — best whale watching in NL · Easy add-on to your Bay Bulls stop" },
+  { name: "Cape St. Mary's", coords: [46.82, -54.19], emoji: "🐦", color: "#52B788", note: "Massive gannet colony on a dramatic sea stack · 2-hr detour south of the TCH · One of NL's most spectacular wildlife sites" },
+  { name: "Trinity Village", coords: [48.37, -53.36], emoji: "⛵", color: "#52B788", note: "500-year-old heritage fishing village with dramatic sea stacks · Whale watching from shore · 2-hr stop on the drive north to Elliston" },
+  { name: "Heart's Content", coords: [47.87, -53.39], emoji: "📡", color: "#74C69D", note: "Site of the first transatlantic telegraph cable landing (1866) · Historic cable station museum · 45 min off the main route" },
+  // Central NL
+  { name: "Fogo Island", coords: [49.68, -54.17], emoji: "🏝️", color: "#52B788", note: "World-famous Fogo Island Inn and extraordinary scenery · 2-hr ferry from Farewell (near Gander) · Significant detour but unforgettable" },
+  { name: "Terra Nova National Park", coords: [48.55, -53.97], emoji: "🌲", color: "#74C69D", note: "Canada's easternmost national park · Beautiful boreal forest and fjords · Right on TCH-1 between Elliston and Gander — great lunch stop" },
+  // Gros Morne area
+  { name: "Deer Lake", coords: [49.18, -57.43], emoji: "🦌", color: "#74C69D", note: "Gateway town to Gros Morne · Best grocery & fuel stop before the park · 20 min from the park entrance on TCH-1" },
+  { name: "Rocky Harbour", coords: [49.59, -57.91], emoji: "🏘️", color: "#74C69D", note: "Main village inside Gros Morne NP · Good restaurants, supplies, visitor centre · Your base of operations for Sep 2 hike day" },
+  { name: "Lobster Cove Head Lighthouse", coords: [49.60, -57.98], emoji: "🔦", color: "#74C69D", note: "Beautiful lighthouse inside Gros Morne NP · Short 1km walk · Stunning views over Rocky Harbour — worth 30 min" },
+  // South coast / Port aux Basques
+  { name: "Wreck House", coords: [47.82, -59.22], emoji: "💨", color: "#95D5B2", note: "Famous for extreme wind gusts (up to 200 km/h) · Dramatic coastal barrens · On Route 1 about 50 km before Port aux Basques" },
+  // Nova Scotia
+  { name: "Baddeck, NS", coords: [46.10, -60.75], emoji: "🔔", color: "#B7C9E2", note: "Alexander Graham Bell National Historic Site · Charming town on Bras d'Or Lake · Perfect first stop after the ferry arrives in North Sydney" },
+  { name: "Cabot Trail, NS", coords: [46.85, -60.80], emoji: "🌄", color: "#B7C9E2", note: "One of the world's most scenic drives through the Cape Breton Highlands · Adds a full day but many consider it unmissable — a possible detour if schedule allows" },
+  { name: "Antigonish, NS", coords: [45.62, -61.99], emoji: "☕", color: "#B7C9E2", note: "Charming university town · Great coffee stop midway through the NS drive · 2.5 hrs from North Sydney" },
+  // New Brunswick
+  { name: "Fundy Trail Parkway, NB", coords: [45.40, -65.64], emoji: "🌊", color: "#C9B7E2", note: "Dramatic Bay of Fundy cliffs and world's highest tides · 45-min detour near Sussex · Absolutely worth it if time allows on the Sep 4 drive" },
+  { name: "Sussex, NB", coords: [45.73, -65.51], emoji: "🧀", color: "#C9B7E2", note: "NB's dairy capital · Good farm-to-table food and pleasant small-town stop · 1 hr east of Saint John" },
+];
+
+const driveTimes = [
+  { from: "St. John's", to: "Bay Bulls", time: "25 min", km: "25 km", note: "Via Route 10 south along the Avalon coast" },
+  { from: "Bay Bulls", to: "Cape Spear", time: "20 min", km: "22 km", note: "Short eastward detour to the easternmost point of North America" },
+  { from: "Cape Spear", to: "Elliston (Puffins)", time: "~3 hrs", km: "248 km", note: "Back through St. John's, north on TCH-1 through Clarenville, east on Rte 230 to Bonavista Peninsula" },
+  { from: "Elliston", to: "Gander", time: "1 hr 45 min", km: "166 km", note: "West back to TCH-1, then west through Terra Nova National Park" },
+  { from: "Gander", to: "Twillingate", time: "1 hr 15 min", km: "114 km", note: "North on Rte 330 then Rte 340 over two causeways to Twillingate Island" },
+  { from: "Twillingate", to: "Burlington (OME)", time: "2 hrs", km: "162 km", note: "South to TCH-1, west past Springdale (Ochre Hill stop), then north 30 min to Burlington" },
+  { from: "Burlington (OME)", to: "York Harbour", time: "2 hrs 15 min", km: "195 km", note: "East to TCH-1, west along the Long Range Mountains, south on Rte 450 through the Bay of Islands" },
+  { from: "York Harbour", to: "Tablelands (Gros Morne)", time: "35 min", km: "48 km", note: "North on TCH-1 then Rte 431 to Trout River/Woody Point for the Tablelands trailhead" },
+  { from: "York Harbour", to: "Western Brook Pond", time: "1 hr 15 min", km: "105 km", note: "North through Rocky Harbour on Rte 430 to the parking lot" },
+  { from: "Western Brook Pond", to: "Corner Brook", time: "1 hr", km: "90 km", note: "South on Rte 430 back to Corner Brook — last city before the ferry" },
+  { from: "Corner Brook", to: "Port aux Basques", time: "2 hrs 15 min", km: "225 km", note: "South on TCH-1 through Wreck House and dramatic coastal barrens to the ferry terminal" },
+  { from: "Port aux Basques", to: "North Sydney, NS", time: "~6.5 hrs", km: "~170 km sea", note: "Marine Atlantic overnight ferry — Booking #5033496 · Departs 11:45pm, arrives ~7:00am", type: "ferry" },
+  { from: "North Sydney, NS", to: "Saint John, NB", time: "5.5 hrs", km: "485 km", note: "TCH-104 west through Cape Breton Highlands, across mainland NS, over the Confederation Bridge area into NB · Good stops in Baddeck and Antigonish" },
+  { from: "Saint John, NB", to: "Oromocto / Fredericton", time: "1 hr", km: "100 km", note: "Trans-Canada TCH-1 east along the scenic Saint John River valley" },
+];
+
 // ── PACKING DATA ──────────────────────────────────────────────────────────────
 
 const packingData = {
@@ -841,6 +882,7 @@ function TrailTab() {
 function MapTab() {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
+  const [mapSection, setMapSection] = useState("map");
 
   useEffect(() => {
     if (!document.getElementById("leaflet-css")) {
@@ -851,7 +893,7 @@ function MapTab() {
       document.head.appendChild(link);
     }
 
-    const initMap = () => {
+    const initMap = async () => {
       if (mapInstanceRef.current || !mapRef.current) return;
       const L = window.L;
       const map = L.map(mapRef.current).fitBounds([[45.0, -66.8], [49.9, -52.5]]);
@@ -859,30 +901,74 @@ function MapTab() {
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors",
-        maxZoom: 14,
+        maxZoom: 18,
       }).addTo(map);
 
-      L.polyline(mapRoutePoints.map(p => p.coords), {
-        color: "#2D6A4F", weight: 2.5, dashArray: "6, 5", opacity: 0.7,
-      }).addTo(map);
-
+      // Main route markers (filled)
       mapRoutePoints.forEach((point) => {
         const icon = L.divIcon({
           className: "",
           html: `<div style="width:30px;height:30px;border-radius:50%;background:${point.color};border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer;">${point.emoji}</div>`,
-          iconSize: [30, 30],
-          iconAnchor: [15, 15],
+          iconSize: [30, 30], iconAnchor: [15, 15],
         });
         L.marker(point.coords, { icon }).addTo(map).bindPopup(
-          `<div style="font-family:Georgia,serif;min-width:180px;"><div style="font-weight:bold;font-size:14px;margin-bottom:4px;">${point.emoji} ${point.name}</div><div style="font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">${point.day}</div><div style="font-size:12px;color:#333;line-height:1.5;">${point.note}</div></div>`,
-          { maxWidth: 240 }
+          `<div style="font-family:Georgia,serif;min-width:190px;">
+            <div style="font-weight:bold;font-size:14px;margin-bottom:4px;">${point.emoji} ${point.name}</div>
+            <div style="font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">${point.day}</div>
+            <div style="font-size:12px;color:#333;line-height:1.5;">${point.note}</div>
+          </div>`, { maxWidth: 240 }
         );
       });
+
+      // Optional stop markers (hollow style)
+      optionalStops.forEach((stop) => {
+        const icon = L.divIcon({
+          className: "",
+          html: `<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.92);border:2.5px solid ${stop.color};display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 1px 4px rgba(0,0,0,0.18);cursor:pointer;">${stop.emoji}</div>`,
+          iconSize: [24, 24], iconAnchor: [12, 12],
+        });
+        L.marker(stop.coords, { icon }).addTo(map).bindPopup(
+          `<div style="font-family:Georgia,serif;min-width:190px;">
+            <div style="font-weight:bold;font-size:13px;margin-bottom:4px;">${stop.emoji} ${stop.name}</div>
+            <div style="font-size:10px;color:#40916C;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;font-weight:bold;">✨ Optional Stop</div>
+            <div style="font-size:12px;color:#333;line-height:1.5;">${stop.note}</div>
+          </div>`, { maxWidth: 240 }
+        );
+      });
+
+      // Ferry line (dashed — on water, can't road-route)
+      L.polyline([[47.58, -59.14], [46.21, -60.25]], {
+        color: "#2C3E50", weight: 2.5, dashArray: "4, 8", opacity: 0.65,
+      }).addTo(map).bindTooltip("⛴️ Marine Atlantic Ferry (~6.5 hrs)", { sticky: true });
+
+      // Road routes via OSRM (lng,lat order for OSRM)
+      const segments = [
+        { coords: [[-52.71,47.56],[-52.81,47.32],[-52.623,47.525]], color: "#1B4332" },           // StJohns → BayBulls → CapeSpear
+        { coords: [[-52.623,47.525],[-53.10,48.64],[-54.61,48.96],[-54.78,49.65]], color: "#1B4332" }, // CapeSpear → Elliston → Gander → Twillingate
+        { coords: [[-54.78,49.65],[-56.06,49.50],[-56.53,49.41],[-58.23,49.08]], color: "#40916C" },   // Twillingate → Springdale → Burlington → YorkHarbour
+        { coords: [[-58.23,49.08],[-57.87,49.51],[-57.89,49.73],[-57.94,48.95],[-59.14,47.58]], color: "#2C3E50" }, // YorkHarbour → GrosMorne → WesternBrook → CornerBrook → PortauxBasques
+        { coords: [[-60.25,46.21],[-66.07,45.27],[-66.48,45.85]], color: "#4A4E69" },              // NorthSydney → SaintJohn → Oromocto
+      ];
+
+      for (const seg of segments) {
+        try {
+          const coordStr = seg.coords.map(([lng, lat]) => `${lng},${lat}`).join(";");
+          const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`);
+          const data = await res.json();
+          if (data.routes && data.routes[0]) {
+            const latlngs = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+            L.polyline(latlngs, { color: seg.color, weight: 3.5, opacity: 0.75 }).addTo(map);
+          } else { throw new Error("no route"); }
+        } catch {
+          // Fallback: straight dashed line
+          const latlngs = seg.coords.map(([lng, lat]) => [lat, lng]);
+          L.polyline(latlngs, { color: seg.color, weight: 2.5, dashArray: "6, 5", opacity: 0.6 }).addTo(map);
+        }
+      }
     };
 
-    if (window.L) {
-      initMap();
-    } else {
+    if (window.L) { initMap(); }
+    else {
       const script = document.createElement("script");
       script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
       script.onload = initMap;
@@ -895,29 +981,74 @@ function MapTab() {
   }, []);
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: "24px 16px 48px" }}>
-      <p style={{ fontSize: 13, color: "#666", fontStyle: "italic", margin: "0 0 16px", lineHeight: 1.6 }}>
-        Click any marker for details about that stop. The dashed line traces the full route from St. John's to Fredericton.
-      </p>
-      <div ref={mapRef} style={{ height: 480, borderRadius: 12, border: "1px solid #e8e0d5", overflow: "hidden", background: "#e8e4df", marginBottom: 24 }} />
-      <div style={{ background: "#fff", border: "1px solid #e8e0d5", borderRadius: 12, padding: "20px" }}>
-        <div style={{ fontSize: 11, letterSpacing: 3, color: "#2D6A4F", textTransform: "uppercase", marginBottom: 14, fontWeight: "bold" }}>
-          Route — {mapRoutePoints.length} Stops
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 8 }}>
-          {mapRoutePoints.map((point, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 10px", borderRadius: 8, background: "#F9F6F1", border: "1px solid #ede8e0" }}>
-              <div style={{ width: 26, height: 26, borderRadius: "50%", background: point.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, flexShrink: 0 }}>
-                {point.emoji}
-              </div>
-              <div>
-                <div style={{ fontSize: 12, fontWeight: "bold", lineHeight: 1.3 }}>{point.name}</div>
-                <div style={{ fontSize: 10, color: "#888", marginTop: 2 }}>{point.day}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+    <div style={{ maxWidth: 920, margin: "0 auto", padding: "24px 16px 48px" }}>
+      {/* Sub-nav */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+        {[{ id: "map", label: "🗺️ Map" }, { id: "times", label: "⏱️ Drive Times" }, { id: "optional", label: "✨ Optional Stops" }].map(t => (
+          <button key={t.id} onClick={() => setMapSection(t.id)} style={{ padding: "7px 16px", borderRadius: 20, border: `1px solid ${mapSection === t.id ? "#2D6A4F" : "#d0c9be"}`, background: mapSection === t.id ? "#2D6A4F" : "#fff", color: mapSection === t.id ? "#fff" : "#444", fontSize: 13, cursor: "pointer", fontFamily: "Georgia, serif" }}>
+            {t.label}
+          </button>
+        ))}
       </div>
+
+      {/* Map — keep in DOM so Leaflet doesn't lose state, just hide */}
+      <div style={{ display: mapSection === "map" ? "block" : "none" }}>
+        <p style={{ fontSize: 12, color: "#888", fontStyle: "italic", margin: "0 0 10px", lineHeight: 1.6 }}>
+          Road routes via OpenStreetMap routing. <strong style={{ color: "#1B4332" }}>Filled markers</strong> = planned stops · <strong style={{ color: "#40916C" }}>Hollow markers</strong> = optional stops · Dashed = ferry
+        </p>
+        <div ref={mapRef} style={{ height: 500, borderRadius: 12, border: "1px solid #e8e0d5", overflow: "hidden", background: "#e8e4df" }} />
+      </div>
+
+      {/* Drive Times */}
+      {mapSection === "times" && (
+        <div>
+          <p style={{ fontSize: 13, color: "#666", fontStyle: "italic", margin: "0 0 16px", lineHeight: 1.6 }}>
+            Estimated times assume normal conditions. Allow extra for stops, photos, and NL gravel roads near coastal areas.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {driveTimes.map((seg, i) => (
+              <div key={i} style={{ background: "#fff", border: `1px solid ${seg.type === "ferry" ? "#B0C4D8" : "#e8e0d5"}`, borderLeft: `4px solid ${seg.type === "ferry" ? "#2C3E50" : "#2D6A4F"}`, borderRadius: 10, padding: "13px 16px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 5 }}>
+                  <span style={{ fontSize: 15 }}>{seg.type === "ferry" ? "⛴️" : "🚗"}</span>
+                  <span style={{ fontWeight: "bold", fontSize: 14 }}>{seg.from}</span>
+                  <span style={{ color: "#bbb", fontSize: 14 }}>→</span>
+                  <span style={{ fontWeight: "bold", fontSize: 14 }}>{seg.to}</span>
+                  <span style={{ marginLeft: "auto", background: seg.type === "ferry" ? "#EDF2FF" : "#ECFDF5", border: `1px solid ${seg.type === "ferry" ? "#C7D2FE" : "#A7F3D0"}`, borderRadius: 12, padding: "2px 10px", fontSize: 12, color: seg.type === "ferry" ? "#3730A3" : "#065F46", fontWeight: "bold", whiteSpace: "nowrap" }}>
+                    ⏱ {seg.time}
+                  </span>
+                  {seg.km && <span style={{ fontSize: 11, color: "#bbb", whiteSpace: "nowrap" }}>{seg.km}</span>}
+                </div>
+                <div style={{ fontSize: 12, color: "#666", lineHeight: 1.55 }}>{seg.note}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 20, background: "#F9F6F1", border: "1px solid #e8e0d5", borderRadius: 10, padding: "14px 16px", fontSize: 13, color: "#555", lineHeight: 1.7 }}>
+            <strong>Total driving (land):</strong> ~2,120 km · <strong>Ferry:</strong> ~170 km sea · <strong>Total trip distance:</strong> ~2,290 km
+          </div>
+        </div>
+      )}
+
+      {/* Optional Stops */}
+      {mapSection === "optional" && (
+        <div>
+          <p style={{ fontSize: 13, color: "#666", fontStyle: "italic", margin: "0 0 16px", lineHeight: 1.6 }}>
+            All marked on the map as hollow markers. None are required but each is worth knowing about — some are easy add-ons, others are full detours.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {optionalStops.map((stop, i) => (
+              <div key={i} style={{ background: "#fff", border: "1px solid #e8e0d5", borderRadius: 10, padding: "14px 16px", display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <div style={{ width: 30, height: 30, borderRadius: "50%", background: "transparent", border: `2.5px solid ${stop.color}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flexShrink: 0 }}>
+                  {stop.emoji}
+                </div>
+                <div>
+                  <div style={{ fontWeight: "bold", fontSize: 14, marginBottom: 4 }}>{stop.name}</div>
+                  <p style={{ margin: 0, fontSize: 13, color: "#4a4a4a", lineHeight: 1.65 }}>{stop.note}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
